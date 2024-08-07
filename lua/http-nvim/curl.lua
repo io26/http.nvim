@@ -20,7 +20,7 @@ local file_types = {
 local indent = "\n    "
 
 M.get_cmd_file = function(request)
-    local cmd = "curl -s -X " .. request.method .. " '" .. request.url .. "'"
+    local cmd = "curl -s -k -X " .. request.method .. " '" .. request.url .. "'"
 
     cmd = cmd .. " \\" .. indent .. "-D " .. headers_file
     cmd = cmd .. " \\" .. indent .. "-o " .. body_file
@@ -67,7 +67,7 @@ local function get_headers()
         elseif #line > 0 then
             local name, value = line:match("(.+):%s(.+)")
             if name then
-                headers[name] = vim.trim(value)
+                headers[string.lower(name)] = vim.trim(value)
             end
         end
     end

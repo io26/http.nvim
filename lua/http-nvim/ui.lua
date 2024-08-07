@@ -3,11 +3,10 @@ local M = {}
 
 local result_file = fs.file_prefix .. "result.md"
 
-local text_ft = {
-    "json",
-    "xml",
-    "html",
-    "csv",
+local binary_ft = {
+    "pdf",
+    "jpeg",
+    "png",
 }
 
 M.show_status = function(resp)
@@ -25,6 +24,7 @@ end
 M.show_file = function(file)
     if file then
         vim.cmd("e " .. file)
+        vim.cmd("set nomodifiable")
     end
 end
 
@@ -46,13 +46,17 @@ M.get_result_file = function(req, resp)
     end
     result = result .. "```\n"
 
-    result = result .. "# [body](" .. resp.body_file .. ")\n"
-    if vim.tbl_contains(text_ft, resp.body_ft) then
-        result = result .. "```" .. resp.body_ft .. "\n"
-        result = result .. fs.read_file(resp.body_file)
-        result = result .. "```"
-    else
+    if vim.tbl_contains(binary_ft, resp.body_ft) then
+        result = result .. "# [body](" .. resp.body_file .. ")\n"
         result = result .. "\nBINARY DATA\n"
+    else
+        local body = fs.read_file(resp.body_file)
+        if body and #body > 0 then
+            result = result .. "# [body](" .. resp.body_file .. ")\n"
+            result = result .. "```" .. (resp.body_ft and resp.body_ft or "") .. "\n"
+            result = result .. body
+            result = result .. "\n```"
+        end
     end
 
     fs.write_file(result_file, result)
@@ -60,3 +64,4 @@ M.get_result_file = function(req, resp)
 end
 
 return M
+
