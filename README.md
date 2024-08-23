@@ -40,7 +40,7 @@ Yet another [http](https://www.jetbrains.com/help/idea/exploring-http-syntax.htm
     end
 }
 ```
-# Inspired by
+## Inspired by
 
 - [rest.nvim](https://github.com/rest-nvim/rest.nvim)
 - [kulala.nvim](https://github.com/mistweaverco/kulala.nvim)

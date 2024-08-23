@@ -40,25 +40,22 @@ local function get_headers(request_node)
     return headers
 end
 
-local function get_form_data(request_node)
-    local form_data = {}
-    for _, form_data_node in ipairs(get_child_nodes(request_node, "form_data")) do
-        local name_nodes = get_child_nodes(form_data_node, "name", true)
-        local value_nodes = get_child_nodes(form_data_node, "value", true)
+local function get_sections_child_nodes(document_node, type)
+    local nodes = {}
 
-        for i, _ in ipairs(name_nodes) do
-            local name = get_node_text(name_nodes[i])
-            local value = get_node_text(value_nodes[i])
-            form_data[name] = value
+    for _, section_node in ipairs(get_child_nodes(document_node, "section")) do
+        for _, node in ipairs(get_child_nodes(section_node, type)) do
+            table.insert(nodes, node)
         end
     end
-    return form_data
+
+    return nodes
 end
 
 M.get_request_under_cursor = function()
     local document_node = get_document_node()
 
-    local request_nodes = get_child_nodes(document_node, "request")
+    local request_nodes = get_sections_child_nodes(document_node, "request")
     if not next(request_nodes) then
         error("Failed to find 'request' treesitter node under cursor")
     end
@@ -78,15 +75,16 @@ M.get_request_under_cursor = function()
         method = get_child_node_text(request_node, "method"),
         url = get_child_node_text(request_node, "target_url"),
         headers = get_headers(request_node),
+        body = get_child_node_text(request_node, "body"),
         json_body = get_child_node_text(request_node, "json_body"),
-        form_data = get_form_data(request_node),
+        raw_body = get_child_node_text(request_node, "raw_body"),
     }
 end
 
 M.get_vars = function()
     local vars = {}
 
-    local var_nodes = get_child_nodes(get_document_node(), "variable_declaration")
+    local var_nodes = get_sections_child_nodes(get_document_node(), "variable_declaration")
     for _, var_node in pairs(var_nodes) do
         local name = get_child_node_text(var_node, "name", true)
         local value = get_child_node_text(var_node, "value", true)

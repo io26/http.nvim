@@ -19,6 +19,15 @@ local file_types = {
 
 local indent = "\n    "
 
+local function fmt_body(body)
+    if #body > 0 then
+        local body_lines = vim.split(body, "\n")
+        body = table.concat(body_lines, indent)
+        return " \\" .. indent .. "--data-raw '" .. indent .. body .. "'"
+    end
+    return ""
+end
+
 M.get_cmd_file = function(request)
     local cmd = "curl -s -k -X " .. request.method .. " '" .. request.url .. "'"
 
@@ -29,16 +38,8 @@ M.get_cmd_file = function(request)
         cmd = cmd .. " \\" .. indent .. "-H '" .. name .. ": " .. value .. "'"
     end
 
-    if #request.json_body > 0 then
-        local body = vim.split(request.json_body, "\n")
-        local json_body = table.concat(body, indent)
-
-        cmd = cmd .. " \\" .. indent .. "--data-raw '" .. indent .. json_body .. "'"
-    end
-
-    for name, value in pairs(request.form_data) do
-        cmd = cmd .. " \\" .. indent .. "-d '" .. name .. "=" .. value .. "'"
-    end
+    cmd = cmd .. fmt_body(request.json_body)
+    cmd = cmd .. fmt_body(request.raw_body)
 
     fs.write_file(cmd_file, cmd)
     return cmd_file
