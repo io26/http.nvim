@@ -24,7 +24,6 @@ end
 M.show_file = function(file)
     if file then
         vim.cmd("e " .. file)
-        vim.cmd("set nomodifiable")
     end
 end
 
