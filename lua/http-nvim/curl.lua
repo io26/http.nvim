@@ -95,7 +95,8 @@ M.exec = function(request, callback)
 
             response.body_file = body_file
 
-            local main_mime_type = response.headers["content-type"]:match("^[^;]+")
+            local ct = response.headers["content-type"]
+            local main_mime_type = ct ~= nil and ct:match("^[^;]+") or nil
             response.body_ft = file_types[main_mime_type]
 
             if response.body_ft then
